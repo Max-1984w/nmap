@@ -1,0 +1,1918 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catálogo Completo de Portas de Rede (1 - 65535)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- SDK do Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    // =========================================================================
+    // CONFIGURAÇÃO DO SUPABASE (Substitua pelos dados do seu projeto)
+    // =========================================================================
+    const SUPABASE_URL = 'SUA_URL_DO_SUPABASE';
+    const SUPABASE_ANON_KEY = 'SUA_CHAVE_PUBLICA_ANON';
+
+    let supabaseClient = null;
+    if (
+      typeof window.supabase !== 'undefined' &&
+      SUPABASE_URL !== 'SUA_URL_DO_SUPABASE' &&
+      SUPABASE_ANON_KEY !== 'SUA_CHAVE_PUBLICA_ANON'
+    ) {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+          },
+          colors: {
+            navy: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              600: '#1d4ed8',
+              700: '#1e40af',
+              800: '#1e3a8a',
+              900: '#0f172a',
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      body {
+        background: #ffffff !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- Cabeçalho Principal -->
+  <header class="bg-white border-b border-[#cbd5e1] sticky top-0 z-30 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-navy-600 mb-1">
+            <span class="inline-block w-2 h-2 rounded-full bg-navy-600"></span>
+            Referência Técnica IANA &amp; Diagnóstico de Rede
+          </div>
+          <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+            Catálogo Completo de Portas de Rede (1 - 65535)
+          </h1>
+        </div>
+
+        <!-- Controles da Direita: IP Alvo + Exportação -->
+        <div class="no-print flex flex-wrap items-center gap-2.5">
+          <!-- Campo de IP Alvo Dinâmico -->
+          <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-[#cbd5e1]">
+            <label for="target-ip" class="text-xs font-semibold text-slate-600 whitespace-nowrap px-1 flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-navy-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+              </svg>
+              Alvo:
+            </label>
+            <input
+              type="text"
+              id="target-ip"
+              placeholder="<ALVO>"
+              value="<ALVO>"
+              class="w-36 sm:w-40 px-2.5 py-1 text-xs sm:text-sm font-mono bg-white border border-[#cbd5e1] rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-navy-600 focus:border-transparent transition"
+            />
+            <button
+              id="reset-ip-btn"
+              type="button"
+              title="Restaurar placeholder <ALVO>"
+              class="px-2 py-1 text-xs font-mono font-medium text-slate-600 bg-white border border-[#cbd5e1] rounded-lg hover:bg-slate-100 hover:text-slate-900 transition"
+            >
+              &lt;ALVO&gt;
+            </button>
+          </div>
+
+          <!-- Botões de Exportação -->
+          <div class="flex items-center gap-1.5">
+            <button
+              id="export-csv-btn"
+              type="button"
+              class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl bg-white text-slate-700 border border-[#cbd5e1] hover:bg-slate-100 hover:text-slate-900 transition"
+              title="Baixar catálogo completo em CSV"
+            >
+              <svg class="w-3.5 h-3.5 text-navy-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              CSV
+            </button>
+            <button
+              id="export-json-btn"
+              type="button"
+              class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl bg-white text-slate-700 border border-[#cbd5e1] hover:bg-slate-100 hover:text-slate-900 transition"
+              title="Baixar catálogo completo em JSON"
+            >
+              <svg class="w-3.5 h-3.5 text-navy-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              JSON
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de Pesquisa e Filtro de Protocolo -->
+      <div class="no-print mt-4 pt-3.5 border-t border-slate-100 flex flex-col md:flex-row gap-3">
+        <!-- Input de Busca Universal -->
+        <div class="relative flex-1">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Digite QUALQUER porta (1 a 65535), serviço (SSH, SMB, Docker, Redis) ou comando..."
+            class="block w-full pl-10 pr-10 py-2.5 text-sm bg-slate-50 border border-[#cbd5e1] rounded-xl text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-navy-600 focus:border-transparent transition"
+          />
+          <button
+            id="clear-search-btn"
+            type="button"
+            class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
+            aria-label="Limpar pesquisa"
+          >
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Filtro de Protocolo -->
+        <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-[#cbd5e1] self-start md:self-auto" role="group" aria-label="Filtrar por protocolo">
+          <button type="button" data-proto="ALL" class="proto-btn active px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-white text-navy-700 shadow-xs transition">
+            Todas
+          </button>
+          <button type="button" data-proto="TCP" class="proto-btn px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition">
+            TCP
+          </button>
+          <button type="button" data-proto="UDP" class="proto-btn px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition">
+            UDP
+          </button>
+        </div>
+      </div>
+
+      <!-- Abas de Categoria -->
+      <div class="no-print mt-3 flex items-center gap-1.5 overflow-x-auto pb-1" id="category-filters">
+        <button type="button" data-cat="ALL" class="cat-btn active shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-navy-600 text-white transition">
+          Todas
+        </button>
+        <button type="button" data-cat="Acesso & Arquivos" class="cat-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+          Acesso &amp; Arquivos
+        </button>
+        <button type="button" data-cat="Web & APIs" class="cat-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+          Web &amp; APIs
+        </button>
+        <button type="button" data-cat="Infraestrutura & Rede" class="cat-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+          Infraestrutura &amp; Rede
+        </button>
+        <button type="button" data-cat="Windows & Diretório" class="cat-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+          Windows &amp; Diretório
+        </button>
+        <button type="button" data-cat="Bancos & Cache" class="cat-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+          Bancos &amp; Cache
+        </button>
+        <button type="button" data-cat="Containers, VPN & Mensageria" class="cat-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+          Containers, VPN &amp; Mensageria
+        </button>
+        <button type="button" data-cat="E-mail & Comunicação" class="cat-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+          E-mail &amp; Comunicação
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Conteúdo Principal -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+
+    <!-- Barra de Status e Contador -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 bg-white p-4 rounded-xl border border-[#cbd5e1]">
+      <div class="border-l-4 border-navy-600 pl-3 text-xs sm:text-sm text-slate-600 leading-relaxed">
+        <strong class="text-slate-900">Consulta Universal (1–65535):</strong> Digite qualquer número de porta na busca para inspecionar sua faixa oficial IANA e gerar comandos prontos de diagnóstico, mesmo para portas dinâmicas ou não listadas.
+      </div>
+      <div class="shrink-0 flex items-center gap-2 self-end sm:self-center">
+        <span id="results-count" class="text-xs font-semibold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-lg border border-[#cbd5e1]">
+          Carregando...
+        </span>
+      </div>
+    </div>
+
+    <!-- Container Dinâmico para Lookup Universal (1-65535 ou aviso de porta inválida) -->
+    <div id="universal-lookup-container" class="hidden mb-6"></div>
+
+    <!-- Grid de Portas Catalogadas -->
+    <div id="ports-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <!-- Renderizado dinamicamente via JavaScript -->
+    </div>
+
+    <!-- Estado Vazio (Quando busca textual não encontra nada) -->
+    <div id="empty-state" class="hidden text-center py-14 px-4 bg-white rounded-2xl border border-[#cbd5e1]">
+      <svg class="mx-auto h-12 w-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+      <h3 class="mt-3 text-base font-semibold text-slate-900">Nenhum serviço correspondente encontrado</h3>
+      <p class="mt-1 text-sm text-slate-500 max-w-md mx-auto">
+        Tente pesquisar por um número de porta válido entre 1 e 65535, outro protocolo ou limpe os filtros ativos.
+      </p>
+      <button
+        id="reset-all-btn"
+        type="button"
+        class="mt-4 inline-flex items-center px-4 py-2 text-xs font-semibold rounded-xl bg-navy-600 text-white hover:bg-navy-700 transition"
+      >
+        Limpar filtros e pesquisa
+      </button>
+    </div>
+
+    <!-- Tabela de Referência das Faixas Oficiais IANA -->
+    <section class="mt-12 bg-white rounded-2xl border border-[#cbd5e1] p-5 sm:p-6">
+      <div class="pb-4 border-b border-slate-200">
+        <span class="text-xs font-bold uppercase tracking-wider text-navy-600">Padronização Internacional (RFC 6335)</span>
+        <h2 class="text-lg font-bold text-slate-900">Classificação Oficial das Faixas de Portas IANA (1 - 65535)</h2>
+        <p class="mt-1 text-sm text-slate-600">
+          O espaço de endereçamento de transporte TCP e UDP utiliza campos de 16 bits, totalizando 65.535 portas utilizáveis divididas em três faixas oficiais:
+        </p>
+      </div>
+
+      <div class="mt-4 overflow-x-auto">
+        <table class="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr class="bg-slate-50 border-y border-[#cbd5e1] text-xs font-bold uppercase tracking-wider text-slate-600">
+              <th class="py-3 px-4">Intervalo de Portas</th>
+              <th class="py-3 px-4">Classificação IANA</th>
+              <th class="py-3 px-4">Quantidade</th>
+              <th class="py-3 px-4">Comportamento e Uso Típico</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 text-slate-700">
+            <tr class="hover:bg-slate-50/70">
+              <td class="py-3.5 px-4 font-mono font-bold text-navy-700 whitespace-nowrap">0 – 1023</td>
+              <td class="py-3.5 px-4 font-semibold text-slate-900">Well-Known / System Ports</td>
+              <td class="py-3.5 px-4 font-mono text-xs">1.024 portas</td>
+              <td class="py-3.5 px-4">
+                Reservadas para protocolos fundamentais da internet e serviços de sistema (HTTP, SSH, DNS, SMTP, SMB). Em sistemas Unix/Linux, exigem privilégios de superusuário (<code>root</code> / <code>CAP_NET_BIND_SERVICE</code>) para escuta. (A porta 0 é reservada pelo kernel).
+              </td>
+            </tr>
+            <tr class="hover:bg-slate-50/70">
+              <td class="py-3.5 px-4 font-mono font-bold text-navy-700 whitespace-nowrap">1024 – 49151</td>
+              <td class="py-3.5 px-4 font-semibold text-slate-900">Registered / User Ports</td>
+              <td class="py-3.5 px-4 font-mono text-xs">48.128 portas</td>
+              <td class="py-3.5 px-4">
+                Atribuídas pela IANA mediante solicitação para aplicações comerciais, bancos de dados, painéis web, APIs e serviços de usuário (MySQL 3306, RDP 3389, PostgreSQL 5432, HTTP-Alt 8080). Podem ser abertas por processos sem privilégio de root.
+              </td>
+            </tr>
+            <tr class="hover:bg-slate-50/70">
+              <td class="py-3.5 px-4 font-mono font-bold text-navy-700 whitespace-nowrap">49152 – 65535</td>
+              <td class="py-3.5 px-4 font-semibold text-slate-900">Dynamic / Private / Ephemeral</td>
+              <td class="py-3.5 px-4 font-mono text-xs">16.384 portas</td>
+              <td class="py-3.5 px-4">
+                Não podem ser registradas oficialmente na IANA. Utilizadas pelo sistema operacional como portas de origem temporárias (efêmeras) para conexões de saída dos clientes, serviços internos dinâmicos (como RPC dinâmico do Windows) ou aplicações customizadas privadas.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Rodapé -->
+  <footer class="bg-white border-t border-[#cbd5e1] mt-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+      <span>Catálogo Completo de Portas de Rede (1 - 65535) — Referência Técnica IANA</span>
+      <span>Utilize comandos de diagnóstico exclusivamente em redes e sistemas autorizados.</span>
+    </div>
+  </footer>
+
+  <!-- Toast de Notificação -->
+  <div
+    id="toast"
+    role="status"
+    aria-live="polite"
+    class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 pointer-events-none transition-all duration-200 bg-slate-900 text-white text-xs font-medium px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2 border border-slate-700"
+  >
+    <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+    </svg>
+    <span id="toast-message">Comando copiado!</span>
+  </div>
+
+  <script>
+    // Classificação IANA automática por número de porta
+    function getIanaClassification(portNum) {
+      if (portNum >= 1 && portNum <= 1023) {
+        return {
+          code: "Well-Known / System",
+          label: "1–1023: Well-Known / System",
+          badgeClass: "bg-indigo-50 text-indigo-700 border-indigo-200",
+          description: "Porta de Sistema (Well-Known). Reservada pela IANA para serviços centrais de infraestrutura e protocolos padrão. Em sistemas Unix/Linux, exige privilégios administrativos (root) para abertura de socket."
+        };
+      }
+      if (portNum >= 1024 && portNum <= 49151) {
+        return {
+          code: "Registered",
+          label: "1024–49151: Registered",
+          badgeClass: "bg-sky-50 text-sky-700 border-sky-200",
+          description: "Porta Registrada (Registered / User). Utilizada por aplicações específicas, bancos de dados, painéis administrativos, APIs e serviços de terceiros. Pode ser vinculada por processos de usuário comum."
+        };
+      }
+      return {
+        code: "Dynamic / Ephemeral",
+        label: "49152–65535: Dynamic / Private / Ephemeral",
+        badgeClass: "bg-amber-50 text-amber-800 border-amber-200",
+        description: "Porta Dinâmica / Efêmera (Dynamic / Private). Não é registrada na IANA; usada pelo sistema operacional para conexões temporárias de saída (NAT/clientes), canais RPC dinâmicos ou serviços internos customizados."
+      };
+    }
+
+    // Extrai todos os números inteiros de uma string de porta (ex: "20 / 21" -> [20, 21])
+    function extractPortNumbers(portStr) {
+      const matches = String(portStr).match(/\d+/g);
+      return matches ? matches.map(Number) : [];
+    }
+
+    // Base de dados abrangente com 105+ entradas cobrindo todas as portas solicitadas
+    const PORTS_DATA = [
+      // --- WELL-KNOWN / SYSTEM PORTS (1 - 1023) ---
+      {
+        port: "7",
+        protocols: ["TCP", "UDP"],
+        service: "Echo",
+        category: "Infraestrutura & Rede",
+        whatIs: "Protocolo Echo (RFC 862). Devolve imediatamente ao remetente qualquer dado enviado para esta porta, utilizado historicamente para testes simples de conectividade e latência.",
+        commands: [
+          "nmap -sV -p 7 <ALVO>",
+          "nc -nv -w 3 <ALVO> 7"
+        ],
+        tags: ["echo", "diagnostico", "rfc862", "ping"]
+      },
+      {
+        port: "9",
+        protocols: ["TCP", "UDP"],
+        service: "Discard / Wake-on-LAN",
+        category: "Infraestrutura & Rede",
+        whatIs: "Protocolo Discard (descarta silenciosamente qualquer pacote recebido sem resposta) e também amplamente utilizado para envio de pacotes mágicos Wake-on-LAN (WoL) via UDP.",
+        commands: [
+          "nmap -sU -sT -p 9 <ALVO>",
+          "nc -nv -u -w 2 <ALVO> 9"
+        ],
+        tags: ["discard", "wol", "wake on lan", "magic packet"]
+      },
+      {
+        port: "13",
+        protocols: ["TCP", "UDP"],
+        service: "Daytime",
+        category: "Infraestrutura & Rede",
+        whatIs: "Protocolo Daytime (RFC 867). Retorna a data e a hora atuais do sistema em formato legível ASCII assim que uma conexão é estabelecida.",
+        commands: [
+          "nmap -sV -p 13 <ALVO>",
+          "nc -nv -w 3 <ALVO> 13"
+        ],
+        tags: ["daytime", "hora", "data", "relogio"]
+      },
+      {
+        port: "17",
+        protocols: ["TCP", "UDP"],
+        service: "QOTD",
+        category: "Infraestrutura & Rede",
+        whatIs: "Quote of the Day (RFC 865). Serviço legado de diagnóstico que envia uma mensagem curta ou citação do dia ao conectar na porta.",
+        commands: [
+          "nmap -sV -p 17 <ALVO>",
+          "nc -nv -w 3 <ALVO> 17"
+        ],
+        tags: ["qotd", "quote", "legado"]
+      },
+      {
+        port: "19",
+        protocols: ["TCP", "UDP"],
+        service: "Chargen",
+        category: "Infraestrutura & Rede",
+        whatIs: "Character Generator Protocol (RFC 864). Gera um fluxo contínuo de caracteres ASCII para testes de largura de banda e buffers; deve ser bloqueado em bordas devido ao risco de amplificação UDP.",
+        commands: [
+          "nmap -sV -p 19 <ALVO>",
+          "nmap -sU -p 19 --script=chargen-dos <ALVO>"
+        ],
+        tags: ["chargen", "amplificacao", "udp", "fluxo"]
+      },
+      {
+        port: "20 / 21",
+        protocols: ["TCP"],
+        service: "FTP",
+        category: "Acesso & Arquivos",
+        whatIs: "File Transfer Protocol. A porta 21 gerencia o canal de controle e autenticação, enquanto a porta 20 transfere os dados no modo ativo. Transmite credenciais e arquivos sem criptografia.",
+        commands: [
+          "nmap -sV -p 20,21 --script=ftp-anon,ftp-syst <ALVO>",
+          "ftp <ALVO>"
+        ],
+        tags: ["ftp", "arquivos", "anonymous", "upload", "download", "vsftpd"]
+      },
+      {
+        port: "22",
+        protocols: ["TCP"],
+        service: "SSH / SFTP / SCP",
+        category: "Acesso & Arquivos",
+        whatIs: "Secure Shell. Canal criptografado padrão para administração remota via terminal, tunelamento de portas e transferência segura de arquivos (SFTP/SCP).",
+        commands: [
+          "nmap -sV -p 22 --script=ssh2-enum-algos,ssh-auth-methods <ALVO>",
+          "ssh -v usuario@<ALVO>"
+        ],
+        tags: ["ssh", "sftp", "scp", "terminal", "linux", "openssh"]
+      },
+      {
+        port: "23",
+        protocols: ["TCP"],
+        service: "Telnet",
+        category: "Acesso & Arquivos",
+        whatIs: "Terminal remoto legado sem criptografia. Todo o tráfego, incluindo usuário e senha, circula em texto claro pela rede.",
+        commands: [
+          "nmap -sV -p 23 --script=telnet-ntlm-info,telnet-encryption <ALVO>",
+          "nc -nv -w 3 <ALVO> 23"
+        ],
+        tags: ["telnet", "legado", "texto claro", "switch", "roteador", "iot"]
+      },
+      {
+        port: "25",
+        protocols: ["TCP"],
+        service: "SMTP",
+        category: "E-mail & Comunicação",
+        whatIs: "Simple Mail Transfer Protocol. Responsável pelo roteamento e entrega de mensagens de correio eletrônico entre servidores de e-mail (MTA).",
+        commands: [
+          "nmap -sV -p 25 --script=smtp-commands,smtp-open-relay,smtp-enum-users <ALVO>",
+          "nc -nv -w 3 <ALVO> 25"
+        ],
+        tags: ["smtp", "email", "correio", "postfix", "exchange", "relay"]
+      },
+      {
+        port: "37",
+        protocols: ["TCP", "UDP"],
+        service: "Time",
+        category: "Infraestrutura & Rede",
+        whatIs: "Time Protocol (RFC 868). Fornece a contagem de segundos desde 1º de janeiro de 1900 em formato binário de 32 bits para sincronização básica de relógios.",
+        commands: [
+          "nmap -sV -p 37 --script=rfc868-time <ALVO>",
+          "nc -nv -w 3 <ALVO> 37"
+        ],
+        tags: ["time", "relogio", "rfc868"]
+      },
+      {
+        port: "42",
+        protocols: ["TCP", "UDP"],
+        service: "WINS / Host Name Server",
+        category: "Windows & Diretório",
+        whatIs: "Windows Internet Name Service (WINS) e Host Name Server. Resolve nomes NetBIOS legados de estações Windows para endereços IP em redes locais.",
+        commands: [
+          "nmap -sV -p 42 <ALVO>",
+          "nmap -sU -p 42 <ALVO>"
+        ],
+        tags: ["wins", "netbios", "windows", "nomes"]
+      },
+      {
+        port: "43",
+        protocols: ["TCP"],
+        service: "WHOIS",
+        category: "Infraestrutura & Rede",
+        whatIs: "Protocolo de consulta a bancos de dados de registro de domínios, blocos de endereços IP (ASN) e contatos administrativos de rede.",
+        commands: [
+          "nmap -sV -p 43 <ALVO>",
+          "whois -h <ALVO> exemplo.com"
+        ],
+        tags: ["whois", "dominio", "asn", "registro"]
+      },
+      {
+        port: "49",
+        protocols: ["TCP", "UDP"],
+        service: "TACACS+",
+        category: "Infraestrutura & Rede",
+        whatIs: "Terminal Access Controller Access-Control System Plus. Protocolo AAA (Autenticação, Autorização e Auditoria) utilizado principalmente em roteadores e switches Cisco.",
+        commands: [
+          "nmap -sV -p 49 <ALVO>",
+          "nc -nv -w 3 <ALVO> 49"
+        ],
+        tags: ["tacacs", "cisco", "aaa", "autenticacao", "roteador"]
+      },
+      {
+        port: "53",
+        protocols: ["TCP", "UDP"],
+        service: "DNS",
+        category: "Infraestrutura & Rede",
+        whatIs: "Domain Name System. Traduz nomes de domínio em endereços IP (UDP 53) e realiza transferências de zona e respostas maiores que 512 bytes (TCP 53).",
+        commands: [
+          "dig axfr @<ALVO> dominio.local",
+          "nmap -sU -sT -p 53 --script=dns-recursion,dns-nsid <ALVO>"
+        ],
+        tags: ["dns", "dominio", "axfr", "dig", "bind", "resolucao"]
+      },
+      {
+        port: "67 / 68",
+        protocols: ["UDP"],
+        service: "DHCP",
+        category: "Infraestrutura & Rede",
+        whatIs: "Dynamic Host Configuration Protocol. Atribui dinamicamente endereços IP, máscara de sub-rede, gateway e servidores DNS (67 servidor, 68 cliente).",
+        commands: [
+          "nmap --script=broadcast-dhcp-discover",
+          "nmap -sU -p 67,68 <ALVO>"
+        ],
+        tags: ["dhcp", "ip", "gateway", "broadcast", "rede local"]
+      },
+      {
+        port: "69",
+        protocols: ["UDP"],
+        service: "TFTP",
+        category: "Acesso & Arquivos",
+        whatIs: "Trivial File Transfer Protocol. Transferência simples de arquivos sobre UDP sem autenticação, muito usada em boot PXE e backup de firmware de roteadores.",
+        commands: [
+          "nmap -sU -p 69 --script=tftp-enum <ALVO>",
+          "tftp <ALVO>"
+        ],
+        tags: ["tftp", "pxe", "cisco", "firmware", "udp"]
+      },
+      {
+        port: "70",
+        protocols: ["TCP"],
+        service: "Gopher",
+        category: "Web & APIs",
+        whatIs: "Protocolo hierárquico de distribuição de documentos anterior à World Wide Web, ainda encontrado em sistemas legados ou desafios de infraestrutura.",
+        commands: [
+          "nmap -sV -p 70 --script=gopher-ls <ALVO>",
+          "curl gopher://<ALVO>:70/"
+        ],
+        tags: ["gopher", "legado", "documentos"]
+      },
+      {
+        port: "79",
+        protocols: ["TCP"],
+        service: "Finger",
+        category: "Infraestrutura & Rede",
+        whatIs: "Protocolo Finger (RFC 1288). Exibe informações sobre usuários conectados localmente ou remotamente em sistemas Unix/Linux legados.",
+        commands: [
+          "nmap -sV -p 79 --script=finger <ALVO>",
+          "finger @<ALVO>"
+        ],
+        tags: ["finger", "usuarios", "unix", "legado"]
+      },
+      {
+        port: "80",
+        protocols: ["TCP"],
+        service: "HTTP",
+        category: "Web & APIs",
+        whatIs: "Hypertext Transfer Protocol. Servidor web padrão em texto claro (Apache, Nginx, IIS) que entrega páginas HTML, APIs REST e aplicações web.",
+        commands: [
+          "nmap -sV -p 80 --script=http-title,http-headers,http-methods <ALVO>",
+          "curl -I http://<ALVO>"
+        ],
+        tags: ["http", "web", "apache", "nginx", "iis", "site"]
+      },
+      {
+        port: "88",
+        protocols: ["TCP", "UDP"],
+        service: "Kerberos",
+        category: "Windows & Diretório",
+        whatIs: "Serviço de autenticação baseada em tíquetes do Active Directory. A porta 88 aberta identifica quase sempre um Domain Controller (DC).",
+        commands: [
+          "nmap -sV -p 88 --script=krb5-enum-users --script-args krb5-enum-users.realm='DOMINIO.LOCAL' <ALVO>"
+        ],
+        tags: ["kerberos", "active directory", "domain controller", "dc", "windows"]
+      },
+      {
+        port: "102",
+        protocols: ["TCP"],
+        service: "ICCP / S7comm (ISO-TSAP)",
+        category: "Infraestrutura & Rede",
+        whatIs: "ISO-TSAP utilizado por controladores lógicos programáveis (CLPs) Siemens S7 e comunicação industrial SCADA/ICS.",
+        commands: [
+          "nmap -sV -p 102 --script=s7-info <ALVO>"
+        ],
+        tags: ["scada", "ics", "siemens", "s7", "plc", "industrial"]
+      },
+      {
+        port: "110",
+        protocols: ["TCP"],
+        service: "POP3",
+        category: "E-mail & Comunicação",
+        whatIs: "Post Office Protocol v3. Permite que clientes de e-mail baixem mensagens da caixa postal do servidor sem criptografia.",
+        commands: [
+          "nmap -sV -p 110 --script=pop3-capabilities,pop3-ntlm-info <ALVO>",
+          "nc -nv -w 3 <ALVO> 110"
+        ],
+        tags: ["pop3", "email", "caixa postal", "dovecot"]
+      },
+      {
+        port: "111",
+        protocols: ["TCP", "UDP"],
+        service: "RPCbind / Portmapper",
+        category: "Infraestrutura & Rede",
+        whatIs: "Mapeador de portas ONC RPC em sistemas Unix/Linux. Informa aos clientes em quais portas dinâmicas serviços como NFS ou NIS estão escutando.",
+        commands: [
+          "rpcinfo -p <ALVO>",
+          "nmap -sV -p 111 --script=rpcinfo <ALVO>"
+        ],
+        tags: ["rpc", "portmapper", "rpcbind", "nfs", "linux", "unix"]
+      },
+      {
+        port: "113",
+        protocols: ["TCP"],
+        service: "Ident / Auth",
+        category: "Infraestrutura & Rede",
+        whatIs: "Identification Protocol (RFC 1413). Consulta o proprietário de uma conexão TCP específica em sistemas Unix, historicamente usado por servidores IRC e SMTP.",
+        commands: [
+          "nmap -sV -p 113 <ALVO>",
+          "nc -nv -w 3 <ALVO> 113"
+        ],
+        tags: ["ident", "auth", "irc", "unix"]
+      },
+      {
+        port: "119",
+        protocols: ["TCP"],
+        service: "NNTP",
+        category: "E-mail & Comunicação",
+        whatIs: "Network News Transfer Protocol. Utilizado para leitura e distribuição de artigos em grupos de notícias Usenet.",
+        commands: [
+          "nmap -sV -p 119 --script=nntp-ntlm-info <ALVO>",
+          "nc -nv -w 3 <ALVO> 119"
+        ],
+        tags: ["nntp", "usenet", "news"]
+      },
+      {
+        port: "123",
+        protocols: ["UDP"],
+        service: "NTP",
+        category: "Infraestrutura & Rede",
+        whatIs: "Network Time Protocol. Sincroniza o relógio dos sistemas na rede com servidores de referência atômica/GPS.",
+        commands: [
+          "nmap -sU -p 123 --script=ntp-info,ntp-monlist <ALVO>",
+          "ntpq -c readvar <ALVO>"
+        ],
+        tags: ["ntp", "relogio", "tempo", "sincronizacao", "udp"]
+      },
+      {
+        port: "135",
+        protocols: ["TCP"],
+        service: "MSRPC",
+        category: "Windows & Diretório",
+        whatIs: "Microsoft RPC Endpoint Mapper. Gerencia chamadas de procedimento remoto entre serviços e componentes do Windows.",
+        commands: [
+          "nmap -sV -p 135 --script=msrpc-enum <ALVO>",
+          "rpcclient -U '' -N <ALVO>"
+        ],
+        tags: ["msrpc", "rpc", "windows", "endpoints"]
+      },
+      {
+        port: "137 / 138",
+        protocols: ["UDP"],
+        service: "NetBIOS Name / Datagram",
+        category: "Windows & Diretório",
+        whatIs: "Serviço de Nomes NetBIOS (137) e Datagramas (138). Responsável pela descoberta de nomes de computadores e grupos de trabalho em redes Windows.",
+        commands: [
+          "nmblookup -A <ALVO>",
+          "nmap -sU -p 137,138 --script=nbstat <ALVO>"
+        ],
+        tags: ["netbios", "nbstat", "windows", "workgroup", "udp"]
+      },
+      {
+        port: "139",
+        protocols: ["TCP"],
+        service: "NetBIOS Session (SMB)",
+        category: "Windows & Diretório",
+        whatIs: "Serviço de Sessão NetBIOS. Transporta tráfego legado de compartilhamento de arquivos e impressoras SMB em redes Windows.",
+        commands: [
+          "nmap -sV -p 139 --script=smb-os-discovery,smb-enum-shares <ALVO>",
+          "smbclient -L //<ALVO> -N"
+        ],
+        tags: ["netbios", "smb", "windows", "samba", "compartilhamento"]
+      },
+      {
+        port: "143",
+        protocols: ["TCP"],
+        service: "IMAP",
+        category: "E-mail & Comunicação",
+        whatIs: "Internet Message Access Protocol. Permite acesso e sincronização de pastas e mensagens de e-mail diretamente no servidor (sem criptografia).",
+        commands: [
+          "nmap -sV -p 143 --script=imap-capabilities,imap-ntlm-info <ALVO>",
+          "nc -nv -w 3 <ALVO> 143"
+        ],
+        tags: ["imap", "email", "dovecot", "exchange"]
+      },
+      {
+        port: "161 / 162",
+        protocols: ["UDP"],
+        service: "SNMP / SNMP Trap",
+        category: "Infraestrutura & Rede",
+        whatIs: "Simple Network Management Protocol. A porta 161 recebe consultas de monitoramento de switches, roteadores e servidores; a 162 recebe alertas (Traps).",
+        commands: [
+          "snmpwalk -v2c -c public <ALVO>",
+          "nmap -sU -p 161 --script=snmp-info,snmp-interfaces <ALVO>"
+        ],
+        tags: ["snmp", "public", "private", "monitoramento", "switch", "roteador"]
+      },
+      {
+        port: "177",
+        protocols: ["UDP"],
+        service: "XDMCP",
+        category: "Acesso & Arquivos",
+        whatIs: "X Display Manager Control Protocol. Permite sessões gráficas remotas do sistema X Window em ambientes Unix/Linux.",
+        commands: [
+          "nmap -sU -p 177 --script=xdmcp-discover <ALVO>"
+        ],
+        tags: ["xdmcp", "x11", "grafico", "unix", "linux"]
+      },
+      {
+        port: "179",
+        protocols: ["TCP"],
+        service: "BGP",
+        category: "Infraestrutura & Rede",
+        whatIs: "Border Gateway Protocol. Protocolo de roteamento central da internet usado para trocar tabelas de rotas entre Sistemas Autônomos (AS).",
+        commands: [
+          "nmap -sV -p 179 --script=bgp-info <ALVO>",
+          "nc -nv -w 3 <ALVO> 179"
+        ],
+        tags: ["bgp", "roteamento", "isp", "asn", "roteador"]
+      },
+      {
+        port: "194",
+        protocols: ["TCP"],
+        service: "IRC",
+        category: "E-mail & Comunicação",
+        whatIs: "Internet Relay Chat. Porta oficial IANA para servidores de chat em tempo real baseados em canais de texto.",
+        commands: [
+          "nmap -sV -p 194 --script=irc-info <ALVO>",
+          "nc -nv -w 3 <ALVO> 194"
+        ],
+        tags: ["irc", "chat", "canais"]
+      },
+      {
+        port: "389",
+        protocols: ["TCP", "UDP"],
+        service: "LDAP",
+        category: "Windows & Diretório",
+        whatIs: "Lightweight Directory Access Protocol. Consulta e modifica diretórios hierárquicos como Active Directory e OpenLDAP.",
+        commands: [
+          "nmap -sV -p 389 --script=ldap-rootdse,ldap-search <ALVO>",
+          "ldapsearch -x -H ldap://<ALVO> -s base"
+        ],
+        tags: ["ldap", "active directory", "openldap", "diretorio", "usuarios"]
+      },
+      {
+        port: "443",
+        protocols: ["TCP"],
+        service: "HTTPS",
+        category: "Web & APIs",
+        whatIs: "HTTP sobre TLS/SSL. Comunicação web criptografada com autenticação por certificado digital.",
+        commands: [
+          "nmap -sV -p 443 --script=ssl-cert,ssl-enum-ciphers,http-title <ALVO>",
+          "openssl s_client -connect <ALVO>:443 -servername <ALVO> </dev/null"
+        ],
+        tags: ["https", "ssl", "tls", "certificado", "web", "seguro"]
+      },
+      {
+        port: "445",
+        protocols: ["TCP"],
+        service: "SMB / CIFS",
+        category: "Windows & Diretório",
+        whatIs: "Server Message Block direto sobre TCP. Compartilhamento moderno de arquivos, impressoras e pipes nomeados em redes Windows e Samba.",
+        commands: [
+          "smbclient -L //<ALVO> -N",
+          "nmap -sV -p 445 --script=smb-os-discovery,smb-enum-shares,smb-protocols <ALVO>"
+        ],
+        tags: ["smb", "cifs", "windows", "samba", "pastas", "compartilhamento"]
+      },
+      {
+        port: "464",
+        protocols: ["TCP", "UDP"],
+        service: "Kerberos Change/Set Password",
+        category: "Windows & Diretório",
+        whatIs: "Serviço do Active Directory e Kerberos dedicado à alteração e redefinição de senhas de contas do domínio.",
+        commands: [
+          "nmap -sV -p 464 <ALVO>"
+        ],
+        tags: ["kerberos", "senha", "active directory", "windows"]
+      },
+      {
+        port: "465",
+        protocols: ["TCP"],
+        service: "SMTPS (Submission over TLS)",
+        category: "E-mail & Comunicação",
+        whatIs: "Envio autenticado de e-mails protegido desde o início da conexão por criptografia TLS implícita.",
+        commands: [
+          "nmap -sV -p 465 --script=ssl-cert,smtp-commands <ALVO>",
+          "openssl s_client -connect <ALVO>:465 </dev/null"
+        ],
+        tags: ["smtps", "email", "tls", "envio"]
+      },
+      {
+        port: "500",
+        protocols: ["UDP"],
+        service: "ISAKMP / IKE (IPsec VPN)",
+        category: "Containers, VPN & Mensageria",
+        whatIs: "Internet Security Association and Key Management Protocol. Negocia chaves e parâmetros de túneis VPN IPsec.",
+        commands: [
+          "nmap -sU -p 500 --script=ike-version <ALVO>",
+          "ike-scan <ALVO>"
+        ],
+        tags: ["ipsec", "vpn", "ike", "isakmp", "tunel"]
+      },
+      {
+        port: "502",
+        protocols: ["TCP"],
+        service: "Modbus TCP",
+        category: "Infraestrutura & Rede",
+        whatIs: "Protocolo padrão de automação industrial para comunicação com CLPs, sensores e sistemas SCADA.",
+        commands: [
+          "nmap -sV -p 502 --script=modbus-discover <ALVO>"
+        ],
+        tags: ["modbus", "scada", "ics", "industrial", "clp"]
+      },
+      {
+        port: "512 / 513 / 514",
+        protocols: ["TCP", "UDP"],
+        service: "rexec / rlogin / rsh / Syslog",
+        category: "Acesso & Arquivos",
+        whatIs: "Comandos remotos Berkeley r-services (TCP 512-514) em Unix legado e servidor centralizado de logs Syslog (UDP 514).",
+        commands: [
+          "nmap -sV -p 512,513,514 <ALVO>",
+          "nmap -sU -p 514 <ALVO>"
+        ],
+        tags: ["rsh", "rlogin", "rexec", "syslog", "logs", "unix"]
+      },
+      {
+        port: "515",
+        protocols: ["TCP"],
+        service: "LPD / LPR",
+        category: "Infraestrutura & Rede",
+        whatIs: "Line Printer Daemon. Protocolo de fila de impressão em rede utilizado por servidores de impressão e impressoras corporativas.",
+        commands: [
+          "nmap -sV -p 515 <ALVO>",
+          "lpq -S <ALVO> -P lp"
+        ],
+        tags: ["impressora", "lpd", "lpr", "spooler"]
+      },
+      {
+        port: "520",
+        protocols: ["UDP"],
+        service: "RIP",
+        category: "Infraestrutura & Rede",
+        whatIs: "Routing Information Protocol. Protocolo de roteamento dinâmico baseado em vetor de distância que anuncia rotas via UDP 520.",
+        commands: [
+          "nmap -sU -p 520 <ALVO>"
+        ],
+        tags: ["rip", "roteamento", "udp", "roteador"]
+      },
+      {
+        port: "548",
+        protocols: ["TCP"],
+        service: "AFP",
+        category: "Acesso & Arquivos",
+        whatIs: "Apple Filing Protocol. Protocolo proprietário da Apple para compartilhamento de arquivos em redes macOS.",
+        commands: [
+          "nmap -sV -p 548 --script=afp-serverinfo,afp-ls,afp-showmount <ALVO>"
+        ],
+        tags: ["afp", "apple", "macos", "arquivos"]
+      },
+      {
+        port: "554",
+        protocols: ["TCP", "UDP"],
+        service: "RTSP",
+        category: "Web & APIs",
+        whatIs: "Real Time Streaming Protocol. Controla fluxos de áudio e vídeo em tempo real, muito comum em câmeras IP e sistemas CFTV/NVR.",
+        commands: [
+          "nmap -sV -p 554 --script=rtsp-methods,rtsp-url-brute <ALVO>",
+          "curl -i -X OPTIONS rtsp://<ALVO>:554/"
+        ],
+        tags: ["rtsp", "camera", "cftv", "video", "streaming"]
+      },
+      {
+        port: "587",
+        protocols: ["TCP"],
+        service: "SMTP Submission (STARTTLS)",
+        category: "E-mail & Comunicação",
+        whatIs: "Porta padrão moderna para clientes de e-mail enviarem mensagens autenticadas ao servidor com suporte a STARTTLS.",
+        commands: [
+          "nmap -sV -p 587 --script=smtp-commands,ssl-cert <ALVO>",
+          "openssl s_client -starttls smtp -connect <ALVO>:587 </dev/null"
+        ],
+        tags: ["smtp", "submission", "starttls", "email"]
+      },
+      {
+        port: "623",
+        protocols: ["UDP"],
+        service: "IPMI / BMC",
+        category: "Infraestrutura & Rede",
+        whatIs: "Intelligent Platform Management Interface. Gerenciamento fora de banda de servidores físicos (Dell iDRAC, HP iLO, Supermicro) mesmo desligados.",
+        commands: [
+          "nmap -sU -p 623 --script=ipmi-version,ipmi-cipher-zero <ALVO>",
+          "ipmitool -I lanplus -H <ALVO> -U admin chassis status"
+        ],
+        tags: ["ipmi", "bmc", "idrac", "ilo", "hardware", "servidor"]
+      },
+      {
+        port: "631",
+        protocols: ["TCP", "UDP"],
+        service: "IPP / CUPS",
+        category: "Infraestrutura & Rede",
+        whatIs: "Internet Printing Protocol / CUPS. Sistema moderno de gerenciamento de impressão em Linux/macOS com interface administrativa web.",
+        commands: [
+          "nmap -sV -p 631 --script=cups-info,cups-queue-info <ALVO>",
+          "curl -I http://<ALVO>:631"
+        ],
+        tags: ["ipp", "cups", "impressora", "linux", "macos"]
+      },
+      {
+        port: "636",
+        protocols: ["TCP"],
+        service: "LDAPS",
+        category: "Windows & Diretório",
+        whatIs: "LDAP sobre SSL/TLS. Versão criptografada do protocolo de consulta ao Active Directory e servidores de diretório.",
+        commands: [
+          "nmap -sV -p 636 --script=ssl-cert,ldap-rootdse <ALVO>",
+          "openssl s_client -connect <ALVO>:636 </dev/null"
+        ],
+        tags: ["ldaps", "ssl", "active directory", "windows", "diretorio"]
+      },
+      {
+        port: "873",
+        protocols: ["TCP"],
+        service: "rsync",
+        category: "Acesso & Arquivos",
+        whatIs: "Serviço de sincronização incremental de arquivos e backups em servidores Linux/Unix. Pode expor módulos públicos sem autenticação.",
+        commands: [
+          "rsync --list-only rsync://<ALVO>/",
+          "nmap -sV -p 873 --script=rsync-list-modules <ALVO>"
+        ],
+        tags: ["rsync", "backup", "sincronizacao", "arquivos", "linux"]
+      },
+      {
+        port: "902",
+        protocols: ["TCP", "UDP"],
+        service: "VMware ESXi / Authd",
+        category: "Infraestrutura & Rede",
+        whatIs: "Serviço de gerenciamento e console remoto de máquinas virtuais em hipervisores VMware ESXi e VMware Workstation.",
+        commands: [
+          "nmap -sV -p 902 --script=vmware-version <ALVO>",
+          "nc -nv -w 3 <ALVO> 902"
+        ],
+        tags: ["vmware", "esxi", "virtualizacao", "hypervisor"]
+      },
+      {
+        port: "993",
+        protocols: ["TCP"],
+        service: "IMAPS",
+        category: "E-mail & Comunicação",
+        whatIs: "IMAP sobre SSL/TLS. Acesso criptografado para sincronização de caixas postais de e-mail.",
+        commands: [
+          "nmap -sV -p 993 --script=ssl-cert,imap-capabilities <ALVO>",
+          "openssl s_client -connect <ALVO>:993 </dev/null"
+        ],
+        tags: ["imaps", "email", "ssl", "tls"]
+      },
+      {
+        port: "995",
+        protocols: ["TCP"],
+        service: "POP3S",
+        category: "E-mail & Comunicação",
+        whatIs: "POP3 sobre SSL/TLS. Download criptografado de mensagens de e-mail do servidor para o cliente.",
+        commands: [
+          "nmap -sV -p 995 --script=ssl-cert,pop3-capabilities <ALVO>",
+          "openssl s_client -connect <ALVO>:995 </dev/null"
+        ],
+        tags: ["pop3s", "email", "ssl", "tls"]
+      },
+
+      // --- REGISTERED PORTS (1024 - 49151) ---
+      {
+        port: "1080",
+        protocols: ["TCP"],
+        service: "SOCKS Proxy",
+        category: "Infraestrutura & Rede",
+        whatIs: "Servidor Proxy SOCKS4/SOCKS5. Encaminha conexões TCP/UDP genéricas de clientes através de um servidor intermediário.",
+        commands: [
+          "nmap -sV -p 1080 --script=socks-open-proxy,socks-auth-info <ALVO>",
+          "curl -I --socks5 <ALVO>:1080 http://example.com"
+        ],
+        tags: ["socks", "socks5", "proxy", "tunel"]
+      },
+      {
+        port: "1099",
+        protocols: ["TCP"],
+        service: "Java RMI Registry",
+        category: "Web & APIs",
+        whatIs: "Java Remote Method Invocation Registry. Permite que aplicações Java invoquem métodos em objetos remotos através da rede.",
+        commands: [
+          "nmap -sV -p 1099 --script=rmi-dumpregistry <ALVO>"
+        ],
+        tags: ["java", "rmi", "registry", "jvm"]
+      },
+      {
+        port: "1194",
+        protocols: ["UDP", "TCP"],
+        service: "OpenVPN",
+        category: "Containers, VPN & Mensageria",
+        whatIs: "Porta padrão do servidor OpenVPN para criação de túneis privados virtuais criptografados via TLS.",
+        commands: [
+          "nmap -sU -sT -p 1194 --script=openvpn-info <ALVO>"
+        ],
+        tags: ["openvpn", "vpn", "tunel", "tls"]
+      },
+      {
+        port: "1433",
+        protocols: ["TCP"],
+        service: "Microsoft SQL Server",
+        category: "Bancos & Cache",
+        whatIs: "Porta padrão de escuta do banco de dados relacional Microsoft SQL Server (MSSQL).",
+        commands: [
+          "nmap -sV -p 1433 --script=ms-sql-info,ms-sql-ntlm-info,ms-sql-empty-password <ALVO>"
+        ],
+        tags: ["mssql", "sql server", "microsoft", "banco de dados"]
+      },
+      {
+        port: "1434",
+        protocols: ["UDP", "TCP"],
+        service: "MSSQL Browser Service",
+        category: "Bancos & Cache",
+        whatIs: "Serviço SQL Server Browser. Informa aos clientes quais instâncias MSSQL estão instaladas e em quais portas dinâmicas elas operam.",
+        commands: [
+          "nmap -sU -p 1434 --script=ms-sql-info <ALVO>"
+        ],
+        tags: ["mssql", "browser", "instancias", "sql server", "udp"]
+      },
+      {
+        port: "1521",
+        protocols: ["TCP"],
+        service: "Oracle TNS Listener",
+        category: "Bancos & Cache",
+        whatIs: "Serviço de rede Oracle Net Listener que recebe solicitações de conexão e encaminha para as instâncias de banco de dados Oracle.",
+        commands: [
+          "nmap -sV -p 1521 --script=oracle-tns-version,oracle-sid-brute <ALVO>"
+        ],
+        tags: ["oracle", "tns", "sid", "banco de dados"]
+      },
+      {
+        port: "1723",
+        protocols: ["TCP"],
+        service: "PPTP VPN",
+        category: "Containers, VPN & Mensageria",
+        whatIs: "Point-to-Point Tunneling Protocol. Protocolo legado de VPN da Microsoft que utiliza a porta TCP 1723 para controle e protocolo GRE (47) para dados.",
+        commands: [
+          "nmap -sV -p 1723 --script=pptp-version <ALVO>"
+        ],
+        tags: ["pptp", "vpn", "microsoft", "legado"]
+      },
+      {
+        port: "1883",
+        protocols: ["TCP"],
+        service: "MQTT",
+        category: "Containers, VPN & Mensageria",
+        whatIs: "Message Queuing Telemetry Transport. Broker de mensageria leve publish/subscribe amplamente usado em dispositivos IoT e telemetria industrial (sem TLS).",
+        commands: [
+          "nmap -sV -p 1883 --script=mqtt-subscribe <ALVO>",
+          "mosquitto_sub -h <ALVO> -t '#' -v -C 5"
+        ],
+        tags: ["mqtt", "iot", "broker", "mensageria", "mosquitto"]
+      },
+      {
+        port: "2049",
+        protocols: ["TCP", "UDP"],
+        service: "NFS",
+        category: "Acesso & Arquivos",
+        whatIs: "Network File System. Permite que sistemas Linux/Unix montem diretórios remotos pela rede como se fossem partições locais.",
+        commands: [
+          "showmount -e <ALVO>",
+          "nmap -sV -p 2049 --script=nfs-showmount,nfs-ls,nfs-statfs <ALVO>"
+        ],
+        tags: ["nfs", "linux", "unix", "mount", "compartilhamento"]
+      },
+      {
+        port: "2181",
+        protocols: ["TCP"],
+        service: "Apache ZooKeeper",
+        category: "Containers, VPN & Mensageria",
+        whatIs: "Serviço distribuído de coordenação, configuração e sincronização usado por clusters Hadoop, Kafka e sistemas distribuídos.",
+        commands: [
+          "echo stat | nc -nv -w 3 <ALVO> 2181",
+          "nmap -sV -p 2181 <ALVO>"
+        ],
+        tags: ["zookeeper", "kafka", "hadoop", "cluster"]
+      },
+      {
+        port: "2375 / 2376",
+        protocols: ["TCP"],
+        service: "Docker Engine API",
+        category: "Containers, VPN & Mensageria",
+        whatIs: "API REST remota do Docker Daemon. A porta 2375 opera sem criptografia nem autenticação por padrão; a 2376 utiliza TLS mútuo.",
+        commands: [
+          "curl -s http://<ALVO>:2375/version",
+          "nmap -sV -p 2375,2376 <ALVO>"
+        ],
+        tags: ["docker", "containers", "api", "daemon"]
+      },
+      {
+        port: "2379 / 2380",
+        protocols: ["TCP"],
+        service: "etcd (Kubernetes)",
+        category: "Containers, VPN & Mensageria",
+        whatIs: "Banco chave-valor distribuído que armazena todo o estado e segredos de clusters Kubernetes (2379 requisições de clientes, 2380 comunicação entre nós).",
+        commands: [
+          "curl -s http://<ALVO>:2379/version",
+          "nmap -sV -p 2379,2380 <ALVO>"
+        ],
+        tags: ["etcd", "kubernetes", "k8s", "containers"]
+      },
+      {
+        port: "3000",
+        protocols: ["TCP"],
+        service: "Node.js / Grafana / Gitea",
+        category: "Web & APIs",
+        whatIs: "Porta padrão de desenvolvimento para aplicações Node.js/React/Rails e serviços como Grafana (monitoramento) e Gitea.",
+        commands: [
+          "nmap -sV -p 3000 --script=http-title,http-headers <ALVO>",
+          "curl -I http://<ALVO>:3000"
+        ],
+        tags: ["node", "grafana", "gitea", "web", "dashboard"]
+      },
+      {
+        port: "3128",
+        protocols: ["TCP"],
+        service: "Squid HTTP Proxy",
+        category: "Infraestrutura & Rede",
+        whatIs: "Porta padrão do servidor proxy cache Squid. Controla, filtra e acelera requisições HTTP/HTTPS de redes corporativas.",
+        commands: [
+          "nmap -sV -p 3128 --script=http-open-proxy <ALVO>",
+          "curl -I -x http://<ALVO>:3128 http://example.com"
+        ],
+        tags: ["squid", "proxy", "cache", "http"]
+      },
+      {
+        port: "3268 / 3269",
+        protocols: ["TCP"],
+        service: "Active Directory Global Catalog",
+        category: "Windows & Diretório",
+        whatIs: "Catálogo Global do Active Directory (3268 LDAP, 3269 LDAPS). Permite buscas rápidas de objetos em toda uma floresta multi-domínio.",
+        commands: [
+          "nmap -sV -p 3268,3269 --script=ldap-rootdse <ALVO>",
+          "ldapsearch -x -H ldap://<ALVO>:3268 -s base"
+        ],
+        tags: ["global catalog", "active directory", "ldap", "windows", "floresta"]
+      },
+      {
+        port: "3306",
+        protocols: ["TCP"],
+        service: "MySQL / MariaDB",
+        category: "Bancos & Cache",
+        whatIs: "Sistema gerenciador de banco de dados relacional open-source mais popular em aplicações web.",
+        commands: [
+          "nmap -sV -p 3306 --script=mysql-info,mysql-empty-password <ALVO>",
+          "mysql -h <ALVO> -u root"
+        ],
+        tags: ["mysql", "mariadb", "sql", "banco de dados", "wordpress"]
+      },
+      {
+        port: "3389",
+        protocols: ["TCP", "UDP"],
+        service: "RDP (Remote Desktop)",
+        category: "Acesso & Arquivos",
+        whatIs: "Remote Desktop Protocol. Acesso gráfico remoto padrão para administração de servidores e estações Windows.",
+        commands: [
+          "nmap -sV -p 3389 --script=rdp-enum-encryption,rdp-ntlm-info <ALVO>",
+          "xfreerdp /v:<ALVO> /u:administrador"
+        ],
+        tags: ["rdp", "windows", "area de trabalho remota", "ntlm"]
+      },
+      {
+        port: "3690",
+        protocols: ["TCP", "UDP"],
+        service: "Subversion (SVN)",
+        category: "Web & APIs",
+        whatIs: "Servidor de controle de versão Subversion (svnserve). Armazena repositórios de código-fonte e históricos de alterações.",
+        commands: [
+          "nmap -sV -p 3690 <ALVO>",
+          "svn info svn://<ALVO>/"
+        ],
+        tags: ["svn", "subversion", "codigo", "repositorio"]
+      },
+      {
+        port: "4369",
+        protocols: ["TCP"],
+        service: "EPMD (Erlang Port Mapper)",
+        category: "Containers, VPN & Mensageria",
+        whatIs: "Erlang Port Mapper Daemon. Coordena nós distribuídos Erlang/Elixir, incluindo clusters RabbitMQ e CouchDB.",
+        commands: [
+          "nmap -sV -p 4369 --script=epmd-info <ALVO>"
+        ],
+        tags: ["epmd", "erlang", "rabbitmq", "couchdb", "cluster"]
+      },
+      {
+        port: "4444",
+        protocols: ["TCP"],
+        service: "Selenium Grid / Krb524 / Custom",
+        category: "Web & APIs",
+        whatIs: "Utilizada por Selenium WebDriver/Grid para automação de navegadores e testes, além de ser uma porta comum para listeners customizados.",
+        commands: [
+          "nmap -sV -p 4444 --script=http-title <ALVO>",
+          "curl -s http://<ALVO>:4444/wd/hub/status"
+        ],
+        tags: ["selenium", "webdriver", "automacao", "testes"]
+      },
+      {
+        port: "4500",
+        protocols: ["UDP"],
+        service: "IPsec NAT-Traversal (NAT-T)",
+        category: "Containers, VPN & Mensageria",
+        whatIs: "Encapsula pacotes IPsec ESP dentro de datagramas UDP na porta 4500 para permitir que túneis VPN atravessem roteadores NAT.",
+        commands: [
+          "nmap -sU -p 4500 <ALVO>"
+        ],
+        tags: ["ipsec", "nat-t", "vpn", "udp"]
+      },
+      {
+        port: "4786",
+        protocols: ["TCP"],
+        service: "Cisco Smart Install",
+        category: "Infraestrutura & Rede",
+        whatIs: "Protocolo de provisionamento zero-touch para switches Cisco Catalyst. Se exposto sem proteção, permite alteração de configuração e extração de firmware.",
+        commands: [
+          "nmap -sV -p 4786 <ALVO>"
+        ],
+        tags: ["cisco", "smart install", "switch", "rede"]
+      },
+      {
+        port: "5000",
+        protocols: ["TCP"],
+        service: "Flask / Docker Registry / UPnP",
+        category: "Web & APIs",
+        whatIs: "Porta padrão para aplicações web Python (Flask), registros privados de imagens Docker (Docker Registry v2) e serviços UPnP.",
+        commands: [
+          "nmap -sV -p 5000 --script=http-title,http-headers <ALVO>",
+          "curl -s http://<ALVO>:5000/v2/_catalog"
+        ],
+        tags: ["flask", "python", "docker registry", "upnp", "api"]
+      },
+      {
+        port: "5060 / 5061",
+        protocols: ["UDP", "TCP"],
+        service: "SIP / SIPS (VoIP)",
+        category: "E-mail & Comunicação",
+        whatIs: "Session Initiation Protocol. Sinalização de chamadas de voz e vídeo sobre IP (VoIP/PABX IP como Asterisk e FreePBX). 5061 usa TLS.",
+        commands: [
+          "nmap -sU -sT -p 5060,5061 --script=sip-methods,sip-enum-users <ALVO>"
+        ],
+        tags: ["sip", "voip", "asterisk", "freepbx", "telefonia"]
+      },
+      {
+        port: "5432",
+        protocols: ["TCP"],
+        service: "PostgreSQL",
+        category: "Bancos & Cache",
+        whatIs: "Banco de dados objeto-relacional avançado de código aberto amplamente utilizado em sistemas corporativos e backends modernos (incluindo Supabase).",
+        commands: [
+          "nmap -sV -p 5432 --script=pgsql-brute <ALVO>",
+          "psql -h <ALVO> -U postgres"
+        ],
+        tags: ["postgres", "postgresql", "sql", "banco de dados", "supabase"]
+      },
+      {
+        port: "5601",
+        protocols: ["TCP"],
+        service: "Kibana",
+        category: "Web & APIs",
+        whatIs: "Interface web de visualização, dashboards e análise de logs da stack Elastic (ELK).",
+        commands: [
+          "nmap -sV -p 5601 --script=http-title <ALVO>",
+          "curl -I http://<ALVO>:5601"
+        ],
+        tags: ["kibana", "elastic", "elk", "logs", "dashboard"]
+      },
+      {
+        port: "5672",
+        protocols: ["TCP"],
+        service: "RabbitMQ (AMQP)",
+        category: "Containers, VPN & Mensageria",
+        whatIs: "Advanced Message Queuing Protocol. Broker de filas de mensagens assíncronas utilizado em arquiteturas de microsserviços.",
+        commands: [
+          "nmap -sV -p 5672 --script=amqp-info <ALVO>"
+        ],
+        tags: ["rabbitmq", "amqp", "mensageria", "filas", "broker"]
+      },
+      {
+        port: "5900",
+        protocols: ["TCP"],
+        service: "VNC (Virtual Network Computing)",
+        category: "Acesso & Arquivos",
+        whatIs: "Compartilhamento gráfico de área de trabalho remota baseado no protocolo RFB (Remote Framebuffer).",
+        commands: [
+          "nmap -sV -p 5900 --script=vnc-info,vnc-title <ALVO>",
+          "vncviewer <ALVO>:5900"
+        ],
+        tags: ["vnc", "rfb", "area de trabalho remota", "grafico"]
+      },
+      {
+        port: "5985 / 5986",
+        protocols: ["TCP"],
+        service: "WinRM (HTTP / HTTPS)",
+        category: "Windows & Diretório",
+        whatIs: "Windows Remote Management. Gerenciamento remoto via PowerShell sobre HTTP (5985) e HTTPS (5986).",
+        commands: [
+          "nmap -sV -p 5985,5986 --script=http-title <ALVO>",
+          "curl -I http://<ALVO>:5985/wsman"
+        ],
+        tags: ["winrm", "powershell", "windows", "wsman", "remoto"]
+      },
+      {
+        port: "6379",
+        protocols: ["TCP"],
+        service: "Redis",
+        category: "Bancos & Cache",
+        whatIs: "Armazenamento em memória de estrutura de dados chave-valor usado como cache, banco NoSQL e message broker.",
+        commands: [
+          "nmap -sV -p 6379 --script=redis-info <ALVO>",
+          "redis-cli -h <ALVO> ping"
+        ],
+        tags: ["redis", "cache", "nosql", "memoria"]
+      },
+      {
+        port: "6443",
+        protocols: ["TCP"],
+        service: "Kubernetes API Server",
+        category: "Containers, VPN & Mensageria",
+        whatIs: "Plano de controle principal (kube-apiserver) de clusters Kubernetes que recebe comandos kubectl e requisições REST sobre HTTPS.",
+        commands: [
+          "curl -k https://<ALVO>:6443/version",
+          "nmap -sV -p 6443 --script=ssl-cert <ALVO>"
+        ],
+        tags: ["kubernetes", "k8s", "apiserver", "containers", "kubectl"]
+      },
+      {
+        port: "8000 / 8080 / 8443",
+        protocols: ["TCP"],
+        service: "HTTP Alternativo / Tomcat / Proxy",
+        category: "Web & APIs",
+        whatIs: "Portas alternativas padrão para servidores web, Apache Tomcat, Jenkins, painéis administrativos, proxies e APIs em desenvolvimento (8443 com TLS).",
+        commands: [
+          "nmap -sV -p 8000,8080,8443 --script=http-title,http-headers <ALVO>",
+          "curl -I http://<ALVO>:8080"
+        ],
+        tags: ["8080", "8000", "8443", "tomcat", "jenkins", "web", "api"]
+      },
+      {
+        port: "9000",
+        protocols: ["TCP"],
+        service: "Portainer / SonarQube / PHP-FPM",
+        category: "Containers, VPN & Mensageria",
+        whatIs: "Utilizada por interfaces de gerenciamento Docker (Portainer), análise de código (SonarQube), MinIO e FastCGI PHP-FPM.",
+        commands: [
+          "nmap -sV -p 9000 --script=http-title <ALVO>",
+          "curl -I http://<ALVO>:9000"
+        ],
+        tags: ["portainer", "sonarqube", "php-fpm", "docker", "minio"]
+      },
+      {
+        port: "9090",
+        protocols: ["TCP"],
+        service: "Prometheus / Cockpit",
+        category: "Infraestrutura & Rede",
+        whatIs: "Servidor de métricas e monitoramento Prometheus e interface administrativa web Cockpit em servidores Linux.",
+        commands: [
+          "nmap -sV -p 9090 --script=http-title <ALVO>",
+          "curl -I http://<ALVO>:9090"
+        ],
+        tags: ["prometheus", "cockpit", "metricas", "monitoramento", "linux"]
+      },
+      {
+        port: "9200 / 9300",
+        protocols: ["TCP"],
+        service: "Elasticsearch",
+        category: "Bancos & Cache",
+        whatIs: "Motor de busca e indexação distribuída. A porta 9200 expõe a API REST HTTP/JSON e a 9300 gerencia a comunicação interna entre nós do cluster.",
+        commands: [
+          "curl -s http://<ALVO>:9200/",
+          "nmap -sV -p 9200,9300 <ALVO>"
+        ],
+        tags: ["elasticsearch", "elk", "busca", "nosql", "json"]
+      },
+      {
+        port: "11211",
+        protocols: ["TCP", "UDP"],
+        service: "Memcached",
+        category: "Bancos & Cache",
+        whatIs: "Sistema distribuído de cache de objetos em memória RAM para acelerar aplicações web dinâmicas.",
+        commands: [
+          "echo stats | nc -nv -w 3 <ALVO> 11211",
+          "nmap -sV -p 11211 --script=memcached-info <ALVO>"
+        ],
+        tags: ["memcached", "cache", "memoria"]
+      },
+      {
+        port: "15672",
+        protocols: ["TCP"],
+        service: "RabbitMQ Management UI",
+        category: "Containers, VPN & Mensageria",
+        whatIs: "Painel web administrativo e API HTTP para gerenciamento de filas, exchanges e conexões do RabbitMQ.",
+        commands: [
+          "nmap -sV -p 15672 --script=http-title <ALVO>",
+          "curl -I http://<ALVO>:15672"
+        ],
+        tags: ["rabbitmq", "painel", "mensageria", "web"]
+      },
+      {
+        port: "27017",
+        protocols: ["TCP"],
+        service: "MongoDB",
+        category: "Bancos & Cache",
+        whatIs: "Banco de dados NoSQL orientado a documentos BSON/JSON de alta escalabilidade.",
+        commands: [
+          "nmap -sV -p 27017 --script=mongodb-info,mongodb-databases <ALVO>",
+          "mongosh --host <ALVO> --port 27017"
+        ],
+        tags: ["mongodb", "mongo", "nosql", "documentos", "banco de dados"]
+      },
+      {
+        port: "51820",
+        protocols: ["UDP"],
+        service: "WireGuard VPN",
+        category: "Containers, VPN & Mensageria",
+        whatIs: "Protocolo VPN moderno, rápido e enxuto baseado em criptografia de chave pública sobre UDP.",
+        commands: [
+          "nmap -sU -p 51820 <ALVO>"
+        ],
+        tags: ["wireguard", "vpn", "udp", "tunel"]
+      }
+    ];
+
+    // =========================================================================
+    // ESTADO DA APLICAÇÃO E ELEMENTOS DO DOM
+    // =========================================================================
+    let currentSearch = "";
+    let currentProto = "ALL";
+    let currentCategory = "ALL";
+    let targetIp = "<ALVO>";
+
+    const searchInput = document.getElementById("search-input");
+    const clearSearchBtn = document.getElementById("clear-search-btn");
+    const targetIpInput = document.getElementById("target-ip");
+    const resetIpBtn = document.getElementById("reset-ip-btn");
+    const portsGrid = document.getElementById("ports-grid");
+    const resultsCount = document.getElementById("results-count");
+    const emptyState = document.getElementById("empty-state");
+    const universalContainer = document.getElementById("universal-lookup-container");
+    const resetAllBtn = document.getElementById("reset-all-btn");
+    const exportCsvBtn = document.getElementById("export-csv-btn");
+    const exportJsonBtn = document.getElementById("export-json-btn");
+    const toast = document.getElementById("toast");
+    const toastMessage = document.getElementById("toast-message");
+
+    // Utilitário para escapar HTML
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // Substitui <ALVO> pelo IP/Host digitado pelo usuário
+    function formatCommand(cmd) {
+      const cleanTarget = targetIp.trim() || "<ALVO>";
+      return cmd.replace(/<ALVO>/g, cleanTarget);
+    }
+
+    // Exibe notificação Toast
+    let toastTimeout;
+    function showToast(msg) {
+      toastMessage.textContent = msg;
+      toast.classList.remove("translate-y-20", "opacity-0");
+      toast.classList.add("translate-y-0", "opacity-100");
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add("translate-y-20", "opacity-0");
+        toast.classList.remove("translate-y-0", "opacity-100");
+      }, 2200);
+    }
+
+    // Copia texto para a área de transferência
+    function copyText(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast("Comando copiado para a área de transferência!");
+        }).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      showToast("Comando copiado!");
+    }
+
+    // Renderiza card de Consulta Universal quando um número de porta é digitado
+    function renderUniversalLookup(query, matchedItems) {
+      const trimmed = query.trim();
+      if (!/^\d+$/.test(trimmed)) {
+        universalContainer.classList.add("hidden");
+        universalContainer.innerHTML = "";
+        return;
+      }
+
+      const portNum = parseInt(trimmed, 10);
+      if (portNum < 1 || portNum > 65535) {
+        universalContainer.classList.remove("hidden");
+        universalContainer.innerHTML = `
+          <div class="bg-rose-50 border border-rose-200 rounded-2xl p-4 sm:p-5 flex items-start gap-3">
+            <svg class="w-5 h-5 text-rose-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <div>
+              <h3 class="text-sm font-bold text-rose-900">Porta fora do intervalo válido (1 – 65535)</h3>
+              <p class="text-xs sm:text-sm text-rose-700 mt-1">
+                O cabeçalho TCP/UDP utiliza 16 bits, permitindo portas numeradas exclusivamente de <strong>1 a 65535</strong>.
+              </p>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const iana = getIanaClassification(portNum);
+      const cleanTarget = targetIp.trim() || "<ALVO>";
+      const cmdTcp = `nmap -sV -p ${portNum} ${cleanTarget}`;
+      const cmdNc = `nc -nv -w 3 ${cleanTarget} ${portNum}`;
+      const cmdUdp = `nmap -sU -p ${portNum} ${cleanTarget}`;
+
+      const exactCatalogMatch = matchedItems.some(item =>
+        extractPortNumbers(item.port).includes(portNum)
+      );
+
+      universalContainer.classList.remove("hidden");
+      universalContainer.innerHTML = `
+        <div class="bg-white border-2 border-navy-600/30 rounded-2xl p-5 shadow-xs">
+          <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
+            <div class="flex items-center gap-2.5">
+              <span class="px-3 py-1 rounded-lg bg-navy-600 text-white font-mono text-sm font-bold">
+                Porta ${portNum}
+              </span>
+              <span class="px-2.5 py-1 rounded-lg text-xs font-semibold border ${iana.badgeClass}">
+                ${iana.label}
+              </span>
+            </div>
+            <span class="text-xs font-medium text-slate-500">
+              ${exactCatalogMatch ? "Catalogada abaixo + Diagnóstico Rápido" : "Inspeção Dinâmica IANA"}
+            </span>
+          </div>
+
+          <p class="mt-3 text-sm text-slate-700 leading-relaxed">
+            ${iana.description}
+          </p>
+
+          <div class="mt-4">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+              Comandos Prontos de Diagnóstico para a Porta ${portNum}
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+              ${[cmdTcp, cmdNc, cmdUdp].map(cmd => `
+                <div class="flex items-center justify-between gap-2 bg-slate-900 text-slate-100 px-3 py-2 rounded-xl font-mono text-xs">
+                  <code class="truncate select-all">${escapeHtml(cmd)}</code>
+                  <button
+                    type="button"
+                    onclick="copyText('${escapeHtml(cmd).replace(/'/g, "\'")}')"
+                    class="shrink-0 p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition"
+                    title="Copiar comando"
+                  >
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Filtra e renderiza todos os cards
+    function renderPorts() {
+      const q = currentSearch.trim().toLowerCase();
+      const isNumericQuery = /^\d+$/.test(q);
+
+      const filtered = PORTS_DATA.filter(item => {
+        // Filtro de protocolo
+        if (currentProto !== "ALL" && !item.protocols.includes(currentProto)) {
+          return false;
+        }
+
+        // Filtro de categoria
+        if (currentCategory !== "ALL" && item.category !== currentCategory) {
+          return false;
+        }
+
+        // Filtro de busca
+        if (!q) return true;
+
+        if (isNumericQuery) {
+          const nums = extractPortNumbers(item.port);
+          if (nums.includes(parseInt(q, 10))) return true;
+        }
+
+        const haystack = [
+          item.port,
+          item.service,
+          item.category,
+          item.whatIs,
+          item.protocols.join(" "),
+          item.commands.join(" "),
+          (item.tags || []).join(" ")
+        ].join(" ").toLowerCase();
+
+        return haystack.includes(q);
+      });
+
+      // Atualiza lookup universal (1-65535)
+      renderUniversalLookup(currentSearch, filtered);
+
+      // Atualiza contador
+      resultsCount.textContent = `${filtered.length} ${filtered.length === 1 ? "serviço exibido" : "serviços exibidos"}`;
+
+      if (filtered.length === 0 && !isNumericQuery) {
+        portsGrid.innerHTML = "";
+        emptyState.classList.remove("hidden");
+        return;
+      }
+
+      emptyState.classList.add("hidden");
+
+      portsGrid.innerHTML = filtered.map(item => {
+        const firstPort = extractPortNumbers(item.port)[0] || 80;
+        const iana = getIanaClassification(firstPort);
+
+        const protoBadges = item.protocols.map(p => {
+          const cls = p === "TCP"
+            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+            : "bg-amber-50 text-amber-700 border-amber-200";
+          return `<span class="px-2 py-0.5 text-[11px] font-mono font-bold rounded-md border ${cls}">${escapeHtml(p)}</span>`;
+        }).join("");
+
+        const commandsHtml = item.commands.map(rawCmd => {
+          const finalCmd = formatCommand(rawCmd);
+          return `
+            <div class="flex items-center justify-between gap-2 bg-slate-900 text-slate-100 px-3 py-2 rounded-xl font-mono text-xs group">
+              <code class="overflow-x-auto whitespace-nowrap select-all">${escapeHtml(finalCmd)}</code>
+              <button
+                type="button"
+                onclick="copyText('${escapeHtml(finalCmd).replace(/'/g, "\'")}')"
+                class="shrink-0 p-1.5 rounded-lg bg-slate-800 hover:bg-navy-600 text-slate-300 hover:text-white transition"
+                title="Copiar comando"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              </button>
+            </div>
+          `;
+        }).join("");
+
+        return `
+          <article class="bg-white rounded-2xl border border-[#cbd5e1] p-5 flex flex-col justify-between hover:border-navy-600/50 transition shadow-2xs">
+            <div>
+              <!-- Cabeçalho do Card -->
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <span class="font-mono text-base font-bold text-navy-700 bg-navy-50 px-2.5 py-0.5 rounded-lg border border-navy-100">
+                      ${escapeHtml(item.port)}
+                    </span>
+                    <div class="flex items-center gap-1">
+                      ${protoBadges}
+                    </div>
+                  </div>
+                  <h3 class="mt-2 text-base font-bold text-slate-900">
+                    ${escapeHtml(item.service)}
+                  </h3>
+                </div>
+                <span class="shrink-0 text-[11px] font-medium px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 border border-slate-200">
+                  ${escapeHtml(item.category)}
+                </span>
+              </div>
+
+              <!-- Descrição -->
+              <p class="mt-2.5 text-sm text-slate-600 leading-relaxed">
+                ${escapeHtml(item.whatIs)}
+              </p>
+            </div>
+
+            <!-- Comandos e Faixa IANA -->
+            <div class="mt-4 pt-3.5 border-t border-slate-100 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  Diagnóstico
+                </span>
+                <span class="text-[11px] font-medium px-2 py-0.5 rounded border ${iana.badgeClass}">
+                  ${iana.code}
+                </span>
+              </div>
+              <div class="space-y-1.5">
+                ${commandsHtml}
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    // =========================================================================
+    // EVENTOS DE INTERAÇÃO (Busca, Protocolo, Categoria, IP Alvo, Exportação)
+    // =========================================================================
+    searchInput.addEventListener("input", e => {
+      currentSearch = e.target.value;
+      clearSearchBtn.classList.toggle("hidden", !currentSearch);
+      renderPorts();
+    });
+
+    clearSearchBtn.addEventListener("click", () => {
+      currentSearch = "";
+      searchInput.value = "";
+      clearSearchBtn.classList.add("hidden");
+      searchInput.focus();
+      renderPorts();
+    });
+
+    targetIpInput.addEventListener("input", e => {
+      targetIp = e.target.value;
+      renderPorts();
+    });
+
+    resetIpBtn.addEventListener("click", () => {
+      targetIp = "<ALVO>";
+      targetIpInput.value = "<ALVO>";
+      renderPorts();
+    });
+
+    document.querySelectorAll(".proto-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".proto-btn").forEach(b => {
+          b.classList.remove("active", "bg-white", "text-navy-700", "shadow-xs");
+          b.classList.add("text-slate-600");
+        });
+        btn.classList.add("active", "bg-white", "text-navy-700", "shadow-xs");
+        btn.classList.remove("text-slate-600");
+        currentProto = btn.dataset.proto;
+        renderPorts();
+      });
+    });
+
+    document.querySelectorAll(".cat-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".cat-btn").forEach(b => {
+          b.classList.remove("active", "bg-navy-600", "text-white", "font-semibold");
+          b.classList.add("bg-slate-100", "text-slate-700", "font-medium");
+        });
+        btn.classList.add("active", "bg-navy-600", "text-white", "font-semibold");
+        btn.classList.remove("bg-slate-100", "text-slate-700", "font-medium");
+        currentCategory = btn.dataset.cat;
+        renderPorts();
+      });
+    });
+
+    resetAllBtn.addEventListener("click", () => {
+      currentSearch = "";
+      searchInput.value = "";
+      clearSearchBtn.classList.add("hidden");
+
+      currentProto = "ALL";
+      document.querySelectorAll(".proto-btn").forEach(b => {
+        const isAll = b.dataset.proto === "ALL";
+        b.classList.toggle("active", isAll);
+        b.classList.toggle("bg-white", isAll);
+        b.classList.toggle("text-navy-700", isAll);
+        b.classList.toggle("shadow-xs", isAll);
+        b.classList.toggle("text-slate-600", !isAll);
+      });
+
+      currentCategory = "ALL";
+      document.querySelectorAll(".cat-btn").forEach(b => {
+        const isAll = b.dataset.cat === "ALL";
+        b.classList.toggle("active", isAll);
+        b.classList.toggle("bg-navy-600", isAll);
+        b.classList.toggle("text-white", isAll);
+        b.classList.toggle("font-semibold", isAll);
+        b.classList.toggle("bg-slate-100", !isAll);
+        b.classList.toggle("text-slate-700", !isAll);
+        b.classList.toggle("font-medium", !isAll);
+      });
+
+      renderPorts();
+    });
+
+    // Exportação CSV
+    exportCsvBtn.addEventListener("click", () => {
+      const headers = ["Porta", "Protocolos", "Servico", "Categoria", "Descricao", "Comandos"];
+      const rows = PORTS_DATA.map(item => [
+        `"${item.port.replace(/"/g, '""')}"`,
+        `"${item.protocols.join(", ")}"`,
+        `"${item.service.replace(/"/g, '""')}"`,
+        `"${item.category.replace(/"/g, '""')}"`,
+        `"${item.whatIs.replace(/"/g, '""')}"`,
+        `"${item.commands.map(formatCommand).join(" | ").replace(/"/g, '""')}"`
+      ].join(","));
+
+      const csvContent = "﻿" + [headers.join(","), ...rows].join("
+");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "catalogo_portas_rede.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("Catálogo exportado em CSV!");
+    });
+
+    // Exportação JSON
+    exportJsonBtn.addEventListener("click", () => {
+      const exportData = PORTS_DATA.map(item => ({
+        ...item,
+        commands: item.commands.map(formatCommand)
+      }));
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "catalogo_portas_rede.json";
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("Catálogo exportado em JSON!");
+    });
+
+    // Sincronização opcional com a tabela 'portas_rede' no Supabase
+    async function carregarPortasDoSupabase() {
+      if (!supabaseClient) return;
+
+      try {
+        const { data, error } = await supabaseClient
+          .from("portas_rede")
+          .select("*")
+          .order("id", { ascending: true });
+
+        if (error) {
+          console.error("Erro ao buscar portas no Supabase:", error.message);
+          return;
+        }
+
+        if (data && data.length > 0) {
+          const portasFormatadas = data.map(item => ({
+            port: item.porta,
+            protocols: item.protocolos ? item.protocolos.split(",").map(p => p.trim()) : ["TCP"],
+            service: item.servico,
+            category: item.categoria,
+            whatIs: item.descricao,
+            commands: item.comandos ? item.comandos.split("\n").filter(Boolean) : [],
+            tags: item.tags ? item.tags.split(",").map(t => t.trim()) : []
+          }));
+
+          PORTS_DATA.length = 0;
+          PORTS_DATA.push(...portasFormatadas);
+          renderPorts();
+        }
+      } catch (err) {
+        console.error("Falha na conexão com Supabase:", err);
+      }
+    }
+
+    // Inicializa a interface imediatamente e tenta sincronizar com Supabase
+    renderPorts();
+    carregarPortasDoSupabase();
+  </script>
+</body>
+</html>
