@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Catálogo Completo de Portas de Rede (1 - 65535)</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- SDK do Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -312,6 +314,61 @@
   </div>
 
   <script>
+    // =========================================================================
+    // CONFIGURAÇÃO DO SUPABASE (Substitua pelos dados do seu projeto)
+    // =========================================================================
+    const SUPABASE_URL = 'SUA_URL_DO_SUPABASE';
+    const SUPABASE_ANON_KEY = 'SUA_CHAVE_PUBLICA_ANON';
+
+    let supabaseClient = null;
+    if (
+      typeof window.supabase !== 'undefined' &&
+      SUPABASE_URL !== 'https://umxnqgazeavcuwkejdpp.supabase.co' &&
+      SUPABASE_ANON_KEY !== 'sb_publishable_jw71HHPkj3sWciClpXeu7A_atAgwZpI'
+    ) {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+
+    // Sincroniza os dados da tabela 'portas_rede' caso as chaves sejam preenchidas
+    async function carregarPortasDoSupabase() {
+      if (!supabaseClient) return;
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('portas_rede')
+          .select('*')
+          .order('id', { ascending: true });
+
+        if (error) {
+          console.error('Erro ao buscar portas no Supabase:', error.message);
+          return;
+        }
+
+        if (data && data.length > 0) {
+          const portasFormatadas = data.map(item => ({
+            port: item.porta,
+            protocols: item.protocolos ? item.protocolos.split(',').map(p => p.trim()) : ['TCP'],
+            service: item.servico,
+            category: item.categoria,
+            whatIs: item.descricao,
+            commands: item.comandos ? item.comandos.split('\n').filter(Boolean) : [],
+            tags: item.tags ? item.tags.split(',').map(t => t.trim()) : []
+          }));
+
+          PORTS_DATA.length = 0;
+          PORTS_DATA.push(...portasFormatadas);
+
+          if (typeof renderPorts === 'function') {
+            renderPorts();
+          }
+        }
+      } catch (err) {
+        console.error('Falha na conexão com Supabase:', err);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', carregarPortasDoSupabase);
+
     // Classificação IANA automática por número de porta
     function getIanaClassification(portNum) {
       if (portNum >= 1 && portNum <= 1023) {
