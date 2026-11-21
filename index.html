@@ -14,14 +14,14 @@
     // =========================================================================
     // CONFIGURAÇÃO DO SUPABASE (Substitua pelos dados do seu projeto)
     // =========================================================================
-    const SUPABASE_URL = 'SUA_URL_DO_SUPABASE';
+    const SUPABASE_URL = 'https://umxnqgazeavcuwkejdpp.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_jw71HHPkj3sWciClpXeu7A_atAgwZpI';
 
     let supabaseClient = null;
     if (
       typeof window.supabase !== 'undefined' &&
       SUPABASE_URL !== 'https://umxnqgazeavcuwkejdpp.supabase.co' &&
-      SUPABASE_ANON_KEY !== 'SUA_CHAVE_PUBLICA_ANON'
+      SUPABASE_ANON_KEY !== 'sb_publishable_jw71HHPkj3sWciClpXeu7A_atAgwZpI'
     ) {
       supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
